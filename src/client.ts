@@ -49,7 +49,7 @@ export default class Client extends (EventEmitter as new () => TypedEmitter<Clie
 	}
 
 	/**Requests something from the Discord REST API */
-	async request(route: string, method: Method = `GET`, body?: Record<string, unknown>, files?: File[]) {
+	async rest(route: string, method: Method = `GET`, body?: Record<string, unknown>, files?: File[]) {
 		try {
 			let data = new FormData();
 			let headers = {
@@ -85,7 +85,7 @@ export default class Client extends (EventEmitter as new () => TypedEmitter<Clie
 			url,
 			shards,
 			session_start_limit: { max_concurrency }
-		} = (await this.request(Routes.gatewayBot())) as RESTGetAPIGatewayBotResult;
+		} = (await this.rest(Routes.gatewayBot())) as RESTGetAPIGatewayBotResult;
 
 		this.#shards = new ShardManager(this, {
 			url: `${url}/?v=${GatewayVersion}&encoding=json`,
