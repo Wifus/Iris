@@ -1,11 +1,11 @@
 {
   "name": "discord-iris",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A Discord bot library",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "npx tsup --dts-resolve"
+    "build": "npx tsup"
   },
   "tsup": {
     "clean": true,
@@ -27,13 +27,13 @@
   "devDependencies": {
     "@types/node": "^17.0.5",
     "@types/ws": "^8.2.2",
-    "discord-api-types": "^0.26.1",
     "tsup": "^5.11.11",
     "typed-emitter": "^1.4.0",
     "typescript": "^4.5.4"
   },
   "dependencies": {
     "axios": "^0.24.0",
+    "discord-api-types": "^0.26.1",
     "form-data": "^4.0.0",
     "ws": "^8.4.0"
   }
