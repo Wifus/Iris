@@ -1,5 +1,5 @@
 // Packages
-import Axios from "axios";
+import Axios, { AxiosRequestHeaders } from "axios";
 import FormData from "form-data";
 import EventEmitter from "events";
 import { GatewayVersion, GatewayDispatchPayload, RESTGetAPIGatewayBotResult, Routes, RouteBases } from "discord-api-types/v9";
@@ -45,30 +45,38 @@ export default class Client extends (EventEmitter as new () => TypedEmitter<Clie
 	}
 
 	log(msg: string, ...src: string[]): void {
-		console.log(`[${new Date().toTimeString().split(" ")[0]}]${src.reduce((acc, cur) => acc += `[${cur}]`, "")} ${msg}`);
+		console.log(`[${new Date().toTimeString().split(" ")[0]}]${src.reduce((acc, cur) => (acc += `[${cur}]`), "")} ${msg}`);
 	}
 
 	/**Requests something from the Discord REST API */
-	async rest(route: string, method: Method = `GET`, body?: Record<string, unknown>, files?: File[]) {
+	async rest(route: string, method: Method = `GET`, body?: any, files?: File[]) {
 		try {
-			let data = new FormData();
-			let headers = {
-				...data.getHeaders(),
-				Authorization: `Bot ${this.options.token}`
-			};
+			let data;
+			let headers: AxiosRequestHeaders = { Authorization: `Bot ${this.options.token}` };
 
-			if (body) data.append("payload_json", JSON.stringify(body));
+			if (files) {
+				data = new FormData();
+				headers = {
+					...data.getHeaders(),
+					...headers
+				};
 
-			for (const [index, file] of files?.entries() ?? []) {
-				data.append(`files[${index}]`, file.data, file.name);
+				if (body) data.append("payload_json", JSON.stringify(body));
+
+				for (const [index, file] of files?.entries() ?? []) {
+					data.append(`files[${index}]`, file.data, file.name);
+				}
+			} else {
+				headers["Content-Type"] = "application/json";
 			}
 
 			const response = await Axios.request({
 				url: `${RouteBases.api}${route}`,
 				method,
-				data,
-				headers
+				headers,
+				data: data ?? body
 			});
+
 			return response.data;
 		} catch (error) {
 			if (Axios.isAxiosError(error)) {
@@ -77,6 +85,7 @@ export default class Client extends (EventEmitter as new () => TypedEmitter<Clie
 				//@ts-ignore
 				this.emit("error", error.message, `Request Handler`);
 			}
+			return error;
 		}
 	}
 
